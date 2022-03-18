@@ -75,17 +75,26 @@ def _dynamic_dict(example, src_field, tgt_field):
 
 
 def make_graph(relation_str, utterances_num, relations_vocab):
-
+    """
+    :param relation_str:
+    :param utterances_num:
+    :param relations_vocab:
+    :return:
+    """
     rel_list = relation_str.split("\t")
     rel_list = [[int(rel.strip().split()[0]), rel.strip().split()[1], int(rel.strip().split()[2])] for rel in
                 rel_list]
 
     rels = []
-    adj_size = utterances_num + 1 + len(rel_list)
+    adj_size = utterances_num + 1 + len(rel_list)  # utterance数量，global节点，边节点
 
     """make graph"""
     edge_list = []
     utterance_egde_list = []
+
+    """total graph"""
+    for i in range(adj_size):
+        edge_list.append([adj_size - 1, i, 0])
 
     # Self
     for i in range(adj_size):
@@ -93,7 +102,6 @@ def make_graph(relation_str, utterances_num, relations_vocab):
 
     """discourse-aware r-gcn"""
     for rel in rel_list:
-      if rel[1] != "global" :
         rels.append(relations_vocab[rel[1].strip()])
         a = rel[0]  # head
         b = rel[2]  # tail
@@ -106,9 +114,6 @@ def make_graph(relation_str, utterances_num, relations_vocab):
         # reverse
         edge_list.append([b, c, 4])  # reverse in-discourse type
         edge_list.append([c, a, 5])  # reverse out-discourse type
-      else :
-        rels.append(relations_vocab["global"])
-        edge_list.append([adj_size - 1, rel[2], 0])
 
 
     rels.append(relations_vocab["global"])
